@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product | Anaya Couture</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+  <style>
+    .pdp-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;padding-top:140px;padding-bottom:80px;align-items:start}
+    .pdp-img{position:sticky;top:120px;overflow:hidden;background:var(--cream)}
+    .pdp-img img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;transition:transform 1.5s cubic-bezier(.16,1,.3,1)}
+    .pdp-img:hover img{transform:scale(1.04)}
+    .pdp-info{padding-top:20px}
+    .pdp-category{font-family:var(--font-accent);font-size:.9rem;font-style:italic;color:var(--gold-soft);margin-bottom:8px}
+    .pdp-title{font-size:2.8rem;line-height:1.1;margin-bottom:20px}
+    .pdp-price{font-size:2rem;font-family:var(--font-display);margin-bottom:8px}
+    .pdp-price .original{text-decoration:line-through;color:var(--mist);font-size:1.2rem;margin-left:12px;font-weight:400}
+    .pdp-price .discount{font-size:.8rem;color:var(--wine);margin-left:12px;font-weight:600}
+    .pdp-desc{color:var(--stone);line-height:1.8;margin:24px 0 32px;font-size:.95rem}
+    .pdp-meta{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:28px 0;border-top:1px solid var(--gold-border);border-bottom:1px solid var(--gold-border);margin-bottom:32px}
+    .pdp-meta-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--gold);margin-bottom:4px}
+    .pdp-meta-value{font-size:.9rem;font-weight:600;color:var(--onyx)}
+    .size-grid{display:flex;gap:8px;margin:16px 0 32px}
+    .size-opt{padding:10px 20px;border:1px solid var(--silk);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:var(--onyx)}
+    .size-opt:hover,.size-opt.active{border-color:var(--gold);color:var(--gold)}
+    .pdp-trust{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:28px}
+    .pdp-trust-item{font-size:.7rem;color:var(--stone);text-transform:uppercase;letter-spacing:.1em;font-weight:600;display:flex;align-items:center;gap:8px}
+    @media(max-width:900px){.pdp-grid{grid-template-columns:1fr;padding-top:100px}.pdp-img{position:static}}
+  </style>
+</head>
+<body>
+  <div class="scroll-progress"></div>
+  <nav class="navbar scrolled"><div class="nav-inner">
+    <div class="nav-links"><a href="shop.html" class="nav-link">← Back to Shop</a></div>
+    <a href="index.html" class="nav-logo"><span class="nav-logo-text">ANAYA</span><span class="nav-logo-sub">Couture</span></a>
+    <div class="nav-links"><a href="cart.html" class="nav-link">Cart <span class="cart-count" style="display:none">0</span></a></div>
+    <div class="nav-actions"><a href="cart.html" class="nav-action-btn">🛒<span class="cart-count" style="display:none">0</span></a></div>
+    <button class="mobile-menu-btn"><span></span><span></span><span></span></button>
+  </div></nav>
+  <div class="mobile-nav"><button class="mobile-nav-close">✕</button><a href="index.html" class="nav-link">Home</a><a href="shop.html" class="nav-link">Shop</a><a href="cart.html" class="nav-link">Cart</a></div>
+
+  <main class="container">
+    <div class="pdp-grid" id="root"></div>
+    <section class="section" style="border-top:1px solid var(--gold-border)">
+      <div class="section-header">
+        <span class="label-luxury">You May Also Love</span>
+        <h2 class="display-md" style="margin-top:12px">Styled For You</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px" id="recs"></div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 Anaya Couture. All rights reserved.</p></div></div></footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ai.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const id = new URLSearchParams(window.location.search).get('id');
+      const p = PRODUCTS.find(pr => pr.id === id);
+      if (!p) { location.href = 'shop.html'; return; }
+      document.title = `${p.name} | Anaya Couture`;
+
+      document.getElementById('root').innerHTML = `
+        <div class="pdp-img reveal-pretty">
+          <img src="${p.images[0]}" alt="${p.name}">
+        </div>
+        <div class="pdp-info reveal-pretty">
+          <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">›</span><a href="shop.html">Shop</a><span class="breadcrumb-sep">›</span><span>${p.subcategory}</span></div>
+          <div class="pdp-category">${p.category.charAt(0).toUpperCase()+p.category.slice(1)} · ${p.subcategory}</div>
+          <h1 class="pdp-title">${p.name}</h1>
+          <div class="pdp-price">₹${p.price.toLocaleString()}<span class="original">₹${p.originalPrice.toLocaleString()}</span><span class="discount">${p.discount}% OFF</span></div>
+          <div style="margin-top:8px">${App.renderStars(p.rating)} <span style="font-size:.8rem;color:var(--mist);margin-left:8px">(${p.reviews} reviews)</span></div>
+          <p class="pdp-desc">${p.description}</p>
+          <div class="pdp-meta">
+            <div><div class="pdp-meta-label">Fabric</div><div class="pdp-meta-value">${p.fabric}</div></div>
+            <div><div class="pdp-meta-label">Occasion</div><div class="pdp-meta-value">${p.occasion}</div></div>
+            <div><div class="pdp-meta-label">Craft</div><div class="pdp-meta-value">${p.subcategory}</div></div>
+            <div><div class="pdp-meta-label">Availability</div><div class="pdp-meta-value">${p.stock > 0 ? 'In Stock' : 'Made to Order'}</div></div>
+          </div>
+          <div class="label-luxury" style="margin-bottom:8px">Select Size</div>
+          <div class="size-grid">${p.sizes.map((s,i) => `<button class="size-opt ${i===0?'active':''}" onclick="document.querySelectorAll('.size-opt').forEach(b=>b.classList.remove('active'));this.classList.add('active')">${s}</button>`).join('')}</div>
+          <button class="btn btn-primary btn-lg" style="width:100%" onclick="App.addToCart('${p.id}')">Add to Bag — ₹${p.price.toLocaleString()}</button>
+          <div class="pdp-trust">
+            <div class="pdp-trust-item">✦ Handcrafted in India</div>
+            <div class="pdp-trust-item">✦ Free Alterations</div>
+            <div class="pdp-trust-item">✦ 7-Day Returns</div>
+            <div class="pdp-trust-item">✦ Authenticity Certificate</div>
+          </div>
+        </div>
+      `;
+
+      const recs = AI.getRecommendations(p.id, 4);
+      document.getElementById('recs').innerHTML = recs.map(r => App.renderProductCard(r)).join('');
+      setTimeout(() => document.querySelectorAll('.reveal-pretty').forEach(el => el.classList.add('revealed')), 100);
+    });
+  </script>
+</body>
+</html>

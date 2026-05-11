@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Story — Anaya Couture | Heritage & Craft</title>
+  <meta name="description" content="The story of Anaya Couture. Crafted with love, inspired by tradition, and dedicated to bringing India's finest ethnic wear to the world.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+  <style>
+    .about-hero {
+      height: 70vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: var(--onyx);
+      overflow: hidden;
+    }
+    .about-hero img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.4);
+      z-index: 0;
+    }
+    .about-hero-content {
+      position: relative;
+      z-index: 2;
+      color: #fff;
+      max-width: 800px;
+      padding: 0 var(--space-lg);
+    }
+    .story-section {
+      padding: var(--space-3xl) 0;
+    }
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .story-img-wrap {
+      position: relative;
+    }
+    .story-img-wrap::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: -20px;
+      bottom: -20px;
+      border: 1px solid var(--gold-border);
+      z-index: -1;
+    }
+    .value-card {
+      text-align: center;
+      padding: var(--space-lg);
+      background: var(--surface);
+      border: 1px solid var(--gold-border);
+      transition: all var(--duration-normal);
+    }
+    .value-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-gold);
+    }
+    .value-icon {
+      font-size: 2rem;
+      margin-bottom: var(--space-md);
+      display: block;
+    }
+    .timeline {
+      position: relative;
+      max-width: 800px;
+      margin: var(--space-2xl) auto;
+      padding-left: 40px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--gold-border);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: var(--space-xl);
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -44.5px;
+      top: 5px;
+      width: 9px;
+      height: 9px;
+      background: var(--gold);
+      border-radius: 50%;
+    }
+    .timeline-year {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    @media (max-width: 900px) {
+      .story-grid { grid-template-columns: 1fr; gap: 40px; }
+      .about-hero { height: 50vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scroll-progress"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar scrolled" id="navbar">
+    <div class="nav-inner">
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Shop</a>
+      </div>
+      <a href="index.html" class="nav-logo">
+        <span class="nav-logo-text">ANAYA</span>
+        <span class="nav-logo-sub">Couture</span>
+      </a>
+      <div class="nav-links">
+        <a href="stylist.html" class="nav-link">AI Stylist</a>
+        <a href="about.html" class="nav-link active">Our Story</a>
+      </div>
+      <div class="nav-actions">
+        <a href="cart.html" class="nav-action-btn">🛒<span class="cart-count" style="display:none">0</span></a>
+      </div>
+      <button class="mobile-menu-btn"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="about-hero">
+    <img src="images/hero-bridal.png" alt="Heritage Craftsmanship">
+    <div class="about-hero-content">
+      <span class="eyebrow" style="color: var(--gold-soft)">Established 2026</span>
+      <h1 class="display-lg">Crafted with Love,<br><em>For Mom</em></h1>
+      <div class="divider-short" style="background: var(--gold-soft)"></div>
+      <p class="text-accent" style="font-size: 1.2rem; color: rgba(255,255,255,0.8)">A journey of preserving tradition and redefining elegance.</p>
+    </div>
+  </section>
+
+  <!-- Our Story -->
+  <section class="story-section container">
+    <div class="story-grid">
+      <div class="story-img-wrap reveal-left">
+        <img src="images/saree-royal.png" alt="Traditional Saree Weaving">
+      </div>
+      <div class="reveal-right">
+        <span class="label-luxury">The Beginning</span>
+        <h2 class="display-md" style="margin: 16px 0 24px">A Legacy of Grace</h2>
+        <p class="text-muted" style="margin-bottom: 20px; line-height: 1.8;">It all began with a vision to celebrate the timeless beauty of Indian ethnic wear. Inspired by the grace of mothers and the rich heritage of Indian textiles, Anaya Couture was born to bridge the gap between ancient craftsmanship and modern luxury.</p>
+        <p class="text-muted" style="margin-bottom: 20px; line-height: 1.8;">What started as a small passion project to help Mom share her exquisite taste in fashion has evolved into a global destination for authentic, handcrafted ethnic wear. Every thread we weave is a tribute to the artisans who have kept these traditions alive for centuries.</p>
+        <div class="divider-ornate" style="justify-content: flex-start"><span>✦ ✦ ✦</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Values -->
+  <section class="section" style="background: var(--ivory-warm)">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="label-luxury">Our Foundations</span>
+        <h2 class="display-md" style="margin-top: 12px">The Anaya Philosophy</h2>
+      </div>
+      <div class="grid-3 stagger-children">
+        <div class="value-card">
+          <span class="value-icon">⚖️</span>
+          <h3 class="heading-sm">Authenticity</h3>
+          <p class="text-muted" style="font-size: 0.9rem">Directly sourced from master weavers and verified artisans across India's most famous textile hubs.</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">🌿</span>
+          <h3 class="heading-sm">Sustainability</h3>
+          <p class="text-muted" style="font-size: 0.9rem">Supporting slow fashion and eco-friendly practices that empower local craft communities.</p>
+        </div>
+        <div class="value-card">
+          <span class="value-icon">💎</span>
+          <h3 class="heading-sm">Excellence</h3>
+          <p class="text-muted" style="font-size: 0.9rem">Meticulous quality control ensuring every piece is a masterpiece of luxury and precision.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline -->
+  <section class="section container">
+    <div class="section-header reveal">
+      <span class="label-luxury">Our Milestone</span>
+      <h2 class="display-md" style="margin-top: 12px">The Journey So Far</h2>
+    </div>
+    <div class="timeline reveal">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2026 — The Vision</div>
+        <p class="text-muted">Anaya Couture launches as a digital-first boutique, bringing handcrafted heritage to a global audience.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2026 — Innovation</div>
+        <p class="text-muted">Introduction of StyleBot, our AI-powered personal stylist, redefining the digital shopping experience.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">Present — Expansion</div>
+        <p class="text-muted">Serving patrons in over 50 countries, preserving traditions while embracing a global future.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo" style="align-items:flex-start">
+            <span class="nav-logo-text" style="color:#fff">ANAYA</span>
+            <span class="nav-logo-sub">Couture</span>
+          </a>
+          <p>India's finest handcrafted ethnic wear, curated from master artisans for the modern woman.</p>
+        </div>
+        <div>
+          <h4 class="footer-heading">Shop</h4>
+          <a href="shop.html?cat=sarees" class="footer-link">Sarees</a>
+          <a href="shop.html?cat=lehengas" class="footer-link">Lehengas</a>
+          <a href="shop.html" class="footer-link">New Arrivals</a>
+        </div>
+        <div>
+          <h4 class="footer-heading">Company</h4>
+          <a href="about.html" class="footer-link">Our Story</a>
+          <a href="contact.html" class="footer-link">Contact</a>
+          <a href="stylist.html" class="footer-link">AI Stylist</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Anaya Couture. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('revealed'); obs.unobserve(e.target); }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .stagger-children').forEach(el => obs.observe(el));
+    });
+  </script>
+</body>
+</html>

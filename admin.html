@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atelier Control — Anaya Couture | Administration</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+  <style>
+    body { background: #fdfcf9; }
+    .admin-nav {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--onyx);
+      color: #fff;
+      padding: 40px 20px;
+      z-index: 1000;
+    }
+    .admin-main {
+      margin-left: 260px;
+      padding: 40px 60px;
+      min-height: 100vh;
+    }
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--gold-border);
+      padding: 24px;
+      transition: transform 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-4px); }
+    .stat-val {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--onyx);
+      margin: 8px 0;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 32px;
+      background: #fff;
+      border: 1px solid var(--gold-border);
+    }
+    .admin-table th {
+      text-align: left;
+      padding: 16px 24px;
+      background: var(--ivory-warm);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--gold-border);
+    }
+    .admin-table td {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--gold-border);
+      font-size: 0.9rem;
+    }
+    .admin-tab-btn {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      text-align: left;
+      background: none;
+      border: none;
+      color: var(--mist);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .admin-tab-btn.active { color: var(--gold-soft); background: rgba(255,255,255,0.05); }
+    .status-pill {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 100px;
+    }
+    .status-confirmed { background: #e6f4ea; color: #1e7e34; }
+    .status-pending { background: #fff4e5; color: #b25e00; }
+    @media (max-width: 1024px) {
+      .admin-nav { width: 80px; padding: 40px 10px; }
+      .admin-nav span { display: none; }
+      .admin-main { margin-left: 80px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Admin Sidebar -->
+  <aside class="admin-nav">
+    <div class="nav-logo" style="margin-bottom: 60px; align-items: flex-start;">
+      <span class="nav-logo-text" style="color:#fff; font-size: 1.4rem;">ANAYA</span>
+      <span class="nav-logo-sub" style="color: var(--gold-soft);">Atelier</span>
+    </div>
+    <nav>
+      <button class="admin-tab-btn active" onclick="switchAdminTab('dash')">📊 <span>Analytics</span></button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('orders')">📦 <span>Orders</span></button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('inventory')">👗 <span>Inventory</span></button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('customers')">👥 <span>Customers</span></button>
+      <div style="margin-top: 60px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+        <a href="index.html" class="admin-tab-btn" style="text-decoration:none">🏠 <span>View Site</span></a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Workspace -->
+  <main class="admin-main">
+    <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 48px;">
+      <div>
+        <span class="label-luxury" id="active-tab-label">Management Console</span>
+        <h1 class="display-md" id="active-tab-title">Atelier Overview</h1>
+      </div>
+      <div style="display:flex; gap:16px; align-items:center;">
+        <div style="text-align:right;">
+          <div style="font-weight:600; font-size:0.9rem;">Admin User</div>
+          <div style="font-size:0.7rem; color:var(--mist);">Senior Curator</div>
+        </div>
+        <div style="width:40px; height:40px; background:var(--gold); display:flex; align-items:center; justify-content:center; color:#fff;">A</div>
+      </div>
+    </header>
+
+    <!-- Analytics Dashboard -->
+    <div id="dash-tab" class="admin-content">
+      <div class="grid-3">
+        <div class="stat-card">
+          <span class="label-luxury">Total Sales</span>
+          <div class="stat-val" id="stat-sales">₹0</div>
+          <div style="font-size:0.75rem; color:#1e7e34;">+12% from last month</div>
+        </div>
+        <div class="stat-card">
+          <span class="label-luxury">Visitors</span>
+          <div class="stat-val" id="stat-visitors">0</div>
+          <div style="font-size:0.75rem; color:#1e7e34;">+8% active sessions</div>
+        </div>
+        <div class="stat-card">
+          <span class="label-luxury">Avg. Order Value</span>
+          <div class="stat-val">₹8,450</div>
+          <div style="font-size:0.75rem; color:var(--mist);">Stable performance</div>
+        </div>
+      </div>
+
+      <h3 class="heading-sm" style="margin-top: 48px;">Recent Activity</h3>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="admin-recent-orders">
+          <!-- Recent orders injected here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="orders-tab" class="admin-content" style="display:none">
+      <div style="display:flex; justify-content:space-between; margin-bottom: 24px;">
+        <h3 class="heading-sm">Master Order List</h3>
+        <button class="btn btn-primary btn-sm">Export CSV</button>
+      </div>
+      <table class="admin-table" id="full-orders-table">
+        <!-- Full order list -->
+      </table>
+    </div>
+
+    <!-- Inventory Tab -->
+    <div id="inventory-tab" class="admin-content" style="display:none">
+      <div style="display:flex; justify-content:space-between; margin-bottom: 24px;">
+        <h3 class="heading-sm">Product Catalog</h3>
+        <button class="btn btn-gold btn-sm">+ Add New Piece</button>
+      </div>
+      <table class="admin-table" id="inventory-table">
+        <!-- Inventory list -->
+      </table>
+    </div>
+  </main>
+
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    function initAdmin() {
+      // Mock Data Sync
+      const sales = App.orders.reduce((sum, o) => sum + o.total, 0);
+      document.getElementById('stat-sales').textContent = '₹' + sales.toLocaleString();
+      document.getElementById('stat-visitors').textContent = (Math.floor(Math.random() * 500) + 1200).toLocaleString();
+
+      renderRecentOrders();
+      renderInventory();
+    }
+
+    function switchAdminTab(tab) {
+      document.querySelectorAll('.admin-content').forEach(c => c.style.display = 'none');
+      document.getElementById(tab + '-tab').style.display = 'block';
+      document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      const labels = { dash: 'Atelier Overview', orders: 'Order Management', inventory: 'Product Catalog', customers: 'Customer Relations' };
+      document.getElementById('active-tab-title').textContent = labels[tab];
+    }
+
+    function renderRecentOrders() {
+      const container = document.getElementById('admin-recent-orders');
+      if (!App.orders.length) {
+        container.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--mist);">No orders processed yet.</td></tr>';
+        return;
+      }
+
+      container.innerHTML = App.orders.slice(0, 5).map(o => `
+        <tr>
+          <td style="font-weight:600; color:var(--gold);">#${o.id}</td>
+          <td>${o.name || 'Bespoke Patron'}</td>
+          <td>${o.items.length} pcs</td>
+          <td style="font-weight:600;">₹${o.total.toLocaleString()}</td>
+          <td><span class="status-pill status-confirmed">${o.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderInventory() {
+      const container = document.getElementById('inventory-table');
+      container.innerHTML = `
+        <thead>
+          <tr>
+            <th>Piece</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${PRODUCTS.map(p => `
+            <tr>
+              <td style="display:flex; align-items:center; gap:12px;">
+                <img src="${p.images[0]}" style="width:40px; height:50px; object-fit:cover; border:1px solid var(--gold-border);">
+                <div>
+                  <div style="font-weight:600;">${p.name}</div>
+                  <div style="font-size:0.7rem; color:var(--mist);">${p.id}</div>
+                </div>
+              </td>
+              <td>${p.subcategory}</td>
+              <td>₹${p.price.toLocaleString()}</td>
+              <td style="color:${p.stock < 10 ? 'var(--wine)' : 'inherit'}">${p.stock} in stock</td>
+              <td><span class="status-pill status-confirmed">Active</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+    }
+
+    document.addEventListener('DOMContentLoaded', initAdmin);
+  </script>
+</body>
+</html>

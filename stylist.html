@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Style Concierge — Anaya Couture | Digital Bespoke</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+  <style>
+    .stylist-hero {
+      padding: 160px 0 80px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--ivory-warm) 0%, var(--ivory) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .stylist-hero::before {
+      content: '✦';
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 15rem;
+      opacity: 0.03;
+      color: var(--gold);
+      pointer-events: none;
+    }
+    .quiz-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: var(--space-xl);
+      background: var(--surface);
+      border: 1px solid var(--gold-border);
+      position: relative;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .quiz-step {
+      display: none;
+      animation: fadeIn 0.8s var(--ease-out);
+    }
+    .quiz-step.active {
+      display: block;
+    }
+    .quiz-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-top: 32px;
+    }
+    .quiz-opt {
+      padding: 24px 16px;
+      border: 1px solid var(--gold-border);
+      background: var(--surface);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--duration-normal);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .quiz-opt:hover {
+      border-color: var(--gold);
+      background: var(--gold-glow);
+      transform: translateY(-4px);
+    }
+    .quiz-opt.selected {
+      border-color: var(--gold);
+      background: var(--gold-glow);
+      box-shadow: var(--shadow-gold);
+    }
+    .quiz-opt i {
+      font-size: 1.5rem;
+      color: var(--gold);
+    }
+    .quiz-opt span {
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .progress-bar-wrap {
+      width: 100%;
+      height: 2px;
+      background: var(--ivory-warm);
+      margin-bottom: 40px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--gold);
+      width: 25%;
+      transition: width 0.5s var(--ease-out);
+    }
+    .result-section {
+      display: none;
+      padding: var(--space-2xl) 0;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .chat-section {
+      margin-top: var(--space-3xl);
+      padding: var(--space-2xl) 0;
+      border-top: 1px solid var(--gold-border);
+    }
+  </style>
+</head>
+<body>
+  <div class="scroll-progress"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar scrolled" id="navbar">
+    <div class="nav-inner">
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Shop</a>
+      </div>
+      <a href="index.html" class="nav-logo">
+        <span class="nav-logo-text">ANAYA</span>
+        <span class="nav-logo-sub">Couture</span>
+      </a>
+      <div class="nav-links">
+        <a href="stylist.html" class="nav-link active">AI Stylist</a>
+        <a href="about.html" class="nav-link">Our Story</a>
+      </div>
+      <div class="nav-actions">
+        <a href="cart.html" class="nav-action-btn">🛒<span class="cart-count" style="display:none">0</span></a>
+      </div>
+      <button class="mobile-menu-btn"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="stylist-hero container">
+    <span class="label-luxury anim-fade-in-up">The Digital Atelier</span>
+    <h1 class="display-lg anim-fade-in-up delay-200" style="margin: 16px 0 12px">AI Style Concierge</h1>
+    <p class="text-accent anim-fade-in-up delay-400" style="font-size: 1.1rem; color: var(--stone)">Discover your perfect heritage look through our intelligent curation engine.</p>
+  </section>
+
+  <!-- Quiz Section -->
+  <section class="section container">
+    <div class="quiz-container reveal">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="quiz-progress"></div>
+      </div>
+
+      <!-- Step 1: Occasion -->
+      <div class="quiz-step active" data-step="1">
+        <h2 class="heading-md text-center">What is the occasion?</h2>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="nextStep(1, 'Wedding')"><i>💍</i><span>Wedding</span></div>
+          <div class="quiz-opt" onclick="nextStep(1, 'Festive')"><i>✨</i><span>Festive</span></div>
+          <div class="quiz-opt" onclick="nextStep(1, 'Party')"><i>🎉</i><span>Party</span></div>
+          <div class="quiz-opt" onclick="nextStep(1, 'Casual')"><i>🌸</i><span>Casual</span></div>
+        </div>
+      </div>
+
+      <!-- Step 2: Preferred Category -->
+      <div class="quiz-step" data-step="2">
+        <h2 class="heading-md text-center">Your preferred silhouette?</h2>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="nextStep(2, 'sarees')"><i>👗</i><span>Sarees</span></div>
+          <div class="quiz-opt" onclick="nextStep(2, 'lehengas')"><i>👑</i><span>Lehengas</span></div>
+          <div class="quiz-opt" onclick="nextStep(2, 'suits')"><i>🥻</i><span>Suits</span></div>
+          <div class="quiz-opt" onclick="nextStep(2, 'any')"><i>✦</i><span>Surprise Me</span></div>
+        </div>
+      </div>
+
+      <!-- Step 3: Color Palette -->
+      <div class="quiz-step" data-step="3">
+        <h2 class="heading-md text-center">Preferred color palette?</h2>
+        <div class="quiz-options">
+          <div class="quiz-opt" onclick="nextStep(3, 'Warm')"><i>🔴</i><span>Warm Tones</span></div>
+          <div class="quiz-opt" onclick="nextStep(3, 'Cool')"><i>🔵</i><span>Cool Tones</span></div>
+          <div class="quiz-opt" onclick="nextStep(3, 'Pastel')"><i>⚪</i><span>Pastels</span></div>
+          <div class="quiz-opt" onclick="nextStep(3, 'Dark')"><i>⚫</i><span>Jewel Tones</span></div>
+        </div>
+      </div>
+
+      <!-- Step 4: Loading -->
+      <div class="quiz-step" data-step="4">
+        <div style="text-align: center; padding: 40px 0;">
+          <div class="spinner" style="margin: 0 auto 24px; width: 48px; height: 48px;"></div>
+          <h2 class="heading-sm">Curating your bespoke collection...</h2>
+          <p class="text-muted">Our AI is analyzing heritage patterns for you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Result Section -->
+  <section class="result-section container" id="results">
+    <div class="section-header">
+      <span class="label-luxury">The Bespoke Edit</span>
+      <h2 class="display-md" style="margin-top: 12px">Curated For You</h2>
+      <div class="divider-short"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:32px" id="result-grid"></div>
+    <div class="text-center" style="margin-top: 48px;">
+      <button class="btn btn-outline-gold" onclick="resetQuiz()">Redefine Style</button>
+    </div>
+  </section>
+
+  <!-- Chatbot Section -->
+  <section class="chat-section container">
+    <div class="grid-2 align-items-center">
+      <div class="reveal-left">
+        <span class="label-luxury">StyleBot Concierge</span>
+        <h2 class="display-md" style="margin: 16px 0 24px">Need a Second Opinion?</h2>
+        <p class="text-muted" style="line-height: 1.8; margin-bottom: 24px;">Our AI Stylist is trained in the nuances of heritage fashion, color theory, and modern trends. Chat with StyleBot to get personalized advice on draping, accessorizing, or choosing the right fabric for your body type.</p>
+        <button class="btn btn-primary" onclick="toggleChat()">Chat with Stylist</button>
+      </div>
+      <div class="reveal-right">
+        <div class="glass-card" style="padding: 48px; text-align: center;">
+          <span style="font-size: 3rem; display: block; margin-bottom: 20px;">🤖</span>
+          <h3 class="heading-sm">Always Online</h3>
+          <p class="text-muted">Available 24/7 to help you refine your heritage look.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chat Widget (Injected by JS/AI.js) -->
+  <div class="chat-widget" id="stylebot-chat">
+    <button class="chat-toggle" onclick="toggleChat()">
+      <span class="chat-open-icon">💬</span>
+      <span class="chat-close-icon">✕</span>
+    </button>
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="chat-avatar">✦</div>
+        <div class="chat-header-info">
+          <h4>StyleBot</h4>
+          <p>Bespoke Concierge</p>
+        </div>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-msg bot">Hello! I'm your Anaya StyleBot. How can I assist with your styling today?</div>
+      </div>
+      <div class="chat-input-wrap">
+        <input type="text" class="chat-input" placeholder="Ask about styling..." id="chat-input">
+        <button class="chat-send" id="chat-send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 Anaya Couture. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ai.js"></script>
+  <script>
+    let selections = { occasion: '', category: '', palette: '' };
+
+    function nextStep(step, val) {
+      if (step === 1) selections.occasion = val;
+      if (step === 2) selections.category = val;
+      if (step === 3) selections.palette = val;
+
+      const current = document.querySelector(`.quiz-step[data-step="${step}"]`);
+      const next = document.querySelector(`.quiz-step[data-step="${step + 1}"]`);
+      const prog = document.getElementById('quiz-progress');
+
+      current.classList.remove('active');
+      next.classList.add('active');
+      prog.style.width = (step + 1) * 25 + '%';
+
+      if (step === 3) {
+        setTimeout(showResults, 2000);
+      }
+    }
+
+    function showResults() {
+      const quiz = document.querySelector('.quiz-container');
+      const results = document.getElementById('results');
+      const grid = document.getElementById('result-grid');
+
+      quiz.style.display = 'none';
+      results.style.display = 'block';
+
+      // Advanced Filtering Logic
+      let items = PRODUCTS.filter(p => {
+        const occMatch = p.occasion === selections.occasion || p.tags.includes(selections.occasion.toLowerCase());
+        const catMatch = selections.category === 'any' || p.category === selections.category;
+        return occMatch && catMatch;
+      });
+
+      // If no perfect match, just show top products
+      if (items.length === 0) items = PRODUCTS.slice(0, 4);
+      else items = items.slice(0, 4);
+
+      grid.innerHTML = items.map(p => App.renderProductCard(p)).join('');
+
+      // Trigger reveal
+      setTimeout(() => {
+        document.querySelectorAll('.reveal-pretty').forEach(el => el.classList.add('revealed'));
+      }, 100);
+
+      window.scrollTo({ top: results.offsetTop - 100, behavior: 'smooth' });
+    }
+
+    function resetQuiz() {
+      selections = { occasion: '', category: '', palette: '' };
+      document.querySelector('.quiz-container').style.display = 'flex';
+      document.getElementById('results').style.display = 'none';
+      document.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
+      document.querySelector('.quiz-step[data-step="1"]').classList.add('active');
+      document.getElementById('quiz-progress').style.width = '25%';
+    }
+
+    function toggleChat() {
+      document.getElementById('stylebot-chat').classList.toggle('open');
+    }
+
+    // Simple Chat Logic for StyleBot
+    const input = document.getElementById('chat-input');
+    const send = document.getElementById('chat-send');
+    const messages = document.getElementById('chat-messages');
+
+    function handleSend() {
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      messages.innerHTML += `<div class="chat-msg user">${msg}</div>`;
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+
+      setTimeout(() => {
+        const response = AI.getResponse(msg);
+        messages.innerHTML += `<div class="chat-msg bot">${response}</div>`;
+        messages.scrollTop = messages.scrollHeight;
+      }, 1000);
+    }
+
+    send.addEventListener('click', handleSend);
+    input.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
+  </script>
+</body>
+</html>

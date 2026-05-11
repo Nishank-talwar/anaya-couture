@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Bag — Anaya Couture</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+  <style>
+    .cart-layout{display:grid;grid-template-columns:1fr 380px;gap:48px;align-items:start}
+    .cart-item{display:flex;gap:20px;padding:24px 0;border-bottom:1px solid var(--gold-border);transition:all .3s}
+    .cart-item-img{width:100px;height:130px;flex-shrink:0;overflow:hidden;background:var(--cream)}
+    .cart-item-img img{width:100%;height:100%;object-fit:cover}
+    .cart-item-info{flex:1}
+    .cart-item-remove{background:none;border:none;color:var(--mist);cursor:pointer;font-size:.8rem;padding:4px 8px;transition:color .2s;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+    .cart-item-remove:hover{color:var(--wine)}
+    .order-summary{background:var(--surface);border:1px solid var(--gold-border);padding:32px;position:sticky;top:100px}
+    .summary-row{display:flex;justify-content:space-between;padding:10px 0;font-size:.85rem;color:var(--stone)}
+    .summary-total{display:flex;justify-content:space-between;padding:16px 0;font-size:1.1rem;font-weight:700;color:var(--onyx);border-top:1px solid var(--gold-border);margin-top:8px}
+    .checkout-steps{display:flex;gap:2px;margin-bottom:40px}
+    .step{flex:1;text-align:center;padding:14px;background:var(--ivory-warm);font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--mist);transition:all .3s;cursor:pointer}
+    .step:first-child{border-radius:0}
+    .step.active{background:var(--onyx);color:var(--gold-soft)}
+    .step.done{background:var(--gold);color:#fff}
+    .payment-option{display:flex;align-items:center;gap:16px;padding:18px;border:1px solid var(--gold-border);cursor:pointer;transition:all .2s;margin-bottom:8px}
+    .payment-option:hover,.payment-option.selected{border-color:var(--gold);background:rgba(185,134,11,.03)}
+    .payment-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--silk);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .payment-option.selected .payment-radio{border-color:var(--gold);background:var(--gold)}
+    .payment-option.selected .payment-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+    .success-check{width:72px;height:72px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 24px;color:#fff;animation:scaleIn .5s cubic-bezier(.175,.885,.32,1.275)}
+    @keyframes scaleIn{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+    @media(max-width:900px){.cart-layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="scroll-progress"></div>
+  <nav class="navbar scrolled"><div class="nav-inner">
+    <div class="nav-links"><a href="index.html" class="nav-link">Home</a><a href="shop.html" class="nav-link">Shop</a></div>
+    <a href="index.html" class="nav-logo"><span class="nav-logo-text">ANAYA</span><span class="nav-logo-sub">Couture</span></a>
+    <div class="nav-links"><a href="stylist.html" class="nav-link">AI Stylist</a><a href="about.html" class="nav-link">About</a></div>
+    <div class="nav-actions"><a href="cart.html" class="nav-action-btn" style="border-color:var(--gold);color:var(--gold)">🛒<span class="cart-count" style="display:none">0</span></a></div>
+    <button class="mobile-menu-btn"><span></span><span></span><span></span></button>
+  </div></nav>
+  <div class="mobile-nav"><button class="mobile-nav-close">✕</button><a href="index.html" class="nav-link">Home</a><a href="shop.html" class="nav-link">Shop</a><a href="cart.html" class="nav-link">Cart</a></div>
+
+  <main style="padding-top:130px;min-height:100vh">
+    <div class="container">
+      <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">›</span><span>Shopping Bag</span></div>
+      <h1 class="display-md" id="page-title" style="margin-bottom:32px">Shopping Bag</h1>
+      <div class="checkout-steps" id="checkout-steps">
+        <div class="step active" data-step="1">Bag</div>
+        <div class="step" data-step="2">Address</div>
+        <div class="step" data-step="3">Payment</div>
+        <div class="step" data-step="4">Confirmation</div>
+      </div>
+      <div id="cart-content"></div>
+    </div>
+  </main>
+
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 Anaya Couture. All rights reserved.</p><div class="footer-payments"><span>💳 Visa</span><span>📱 UPI</span><span>💵 COD</span></div></div></div></footer>
+
+  <script src="js/products.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/checkout.js"></script>
+  <script src="js/ai.js"></script>
+  <script>
+    let step=1;const addressData={};
+    function renderCart(){
+      const c=document.getElementById('cart-content');
+      if(!App.cart.length){c.innerHTML='<div class="empty-state"><div class="empty-state-icon">🛒</div><h3>Your bag is empty</h3><p>Explore our collection and discover something extraordinary.</p><a href="shop.html" class="btn btn-primary">Shop Now</a></div>';return}
+      c.innerHTML=`<div class="cart-layout"><div id="cart-items">${App.cart.map((item,i)=>`
+        <div class="cart-item">
+          <div class="cart-item-img"><img src="${item.image}" alt="${item.name}"></div>
+          <div class="cart-item-info">
+            <h3 style="font-family:var(--font-display);font-size:1.05rem;margin-bottom:4px">${item.name}</h3>
+            <p style="font-size:.8rem;color:var(--mist);margin-bottom:12px">${item.color} · ${item.size}</p>
+            <div style="display:flex;align-items:center;gap:16px">
+              <div class="qty-selector"><button class="qty-btn" onclick="updateQty(${i},-1)">−</button><input type="text" class="qty-value" value="${item.qty}" readonly><button class="qty-btn" onclick="updateQty(${i},1)">+</button></div>
+              <span style="font-weight:700;font-size:1rem">₹${(item.price*item.qty).toLocaleString()}</span>
+            </div>
+          </div>
+          <button class="cart-item-remove" onclick="removeItem(${i})">Remove</button>
+        </div>`).join('')}</div>
+        <div class="order-summary">
+          <h3 style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:20px">Order Summary</h3>
+          <div class="summary-row"><span>Subtotal (${App.getCartCount()} items)</span><span>₹${App.getCartTotal().toLocaleString()}</span></div>
+          <div class="summary-row"><span>Shipping</span><span style="color:var(--gold)">${Checkout.getShipping()===0?'Complimentary':'₹'+Checkout.getShipping()}</span></div>
+          <div class="summary-row"><span>Tax (5% GST)</span><span>₹${Checkout.getTax().toLocaleString()}</span></div>
+          ${Checkout.promoDiscount?`<div class="summary-row" style="color:var(--gold)"><span>Promo (${Checkout.promoCode})</span><span>−₹${Checkout.promoDiscount.toLocaleString()}</span></div>`:''}
+          <div class="summary-total"><span>Total</span><span>₹${Checkout.getGrandTotal().toLocaleString()}</span></div>
+          <div style="display:flex;gap:8px;margin:20px 0"><input type="text" class="form-input" placeholder="Promo code" id="promo-input" style="padding:12px 16px;font-size:.85rem"><button class="btn btn-outline-gold btn-sm" onclick="applyPromo()">Apply</button></div>
+          <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="goToStep(2)">Proceed to Checkout</button>
+          <a href="shop.html" style="display:block;text-align:center;font-size:.75rem;color:var(--mist);margin-top:16px;text-transform:uppercase;letter-spacing:.1em">← Continue Shopping</a>
+        </div></div>`;
+    }
+    function renderAddress(){
+      document.getElementById('cart-content').innerHTML=`<div style="max-width:600px">
+        <h2 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:28px">Delivery Address</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="addr-name" value="${addressData.name||''}" placeholder="Your full name"></div>
+          <div class="form-group"><label class="form-label">Phone *</label><input class="form-input" id="addr-phone" value="${addressData.phone||''}" placeholder="+91 XXXXX XXXXX"></div>
+          <div class="form-group" style="grid-column:span 2"><label class="form-label">Address *</label><input class="form-input" id="addr-line" value="${addressData.line||''}" placeholder="House no, Street, Area"></div>
+          <div class="form-group"><label class="form-label">City *</label><input class="form-input" id="addr-city" value="${addressData.city||''}" placeholder="City"></div>
+          <div class="form-group"><label class="form-label">State *</label><input class="form-input" id="addr-state" value="${addressData.state||''}" placeholder="State"></div>
+          <div class="form-group"><label class="form-label">Pincode *</label><input class="form-input" id="addr-pin" value="${addressData.pin||''}" placeholder="6-digit pincode"></div>
+          <div class="form-group"><label class="form-label">Country</label><select class="form-input" id="addr-country"><option>India</option><option>USA</option><option>UK</option><option>UAE</option><option>Canada</option><option>Australia</option></select></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:28px"><button class="btn btn-outline" onclick="goToStep(1)">← Back</button><button class="btn btn-primary" onclick="saveAddress()">Continue to Payment</button></div></div>`;
+    }
+    function renderPayment(){
+      document.getElementById('cart-content').innerHTML=`<div style="max-width:600px">
+        <h2 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:28px">Payment Method</h2>
+        <div class="payment-option selected" onclick="selectPayment(this,'cod')"><div class="payment-radio"></div><div><strong>💵 Cash on Delivery</strong><p style="font-size:.8rem;color:var(--mist);margin-top:2px">Pay when you receive your order</p></div></div>
+        <div class="payment-option" onclick="selectPayment(this,'upi')"><div class="payment-radio"></div><div><strong>📱 UPI Payment</strong><p style="font-size:.8rem;color:var(--mist);margin-top:2px">Google Pay, PhonePe, Paytm</p></div></div>
+        <div class="payment-option" onclick="selectPayment(this,'card')"><div class="payment-radio"></div><div><strong>💳 Credit / Debit Card</strong><p style="font-size:.8rem;color:var(--mist);margin-top:2px">Visa, Mastercard, Rupay</p></div></div>
+        <div id="payment-details" style="margin-top:16px"></div>
+        <div class="order-summary" style="margin-top:28px;position:static">
+          <h3 style="font-family:var(--font-display);font-size:1rem;margin-bottom:16px">Order Summary</h3>
+          <div class="summary-row"><span>Items</span><span>${App.getCartCount()}</span></div>
+          <div class="summary-row"><span>Subtotal</span><span>₹${App.getCartTotal().toLocaleString()}</span></div>
+          <div class="summary-row"><span>Shipping</span><span>${Checkout.getShipping()===0?'Free':'₹'+Checkout.getShipping()}</span></div>
+          <div class="summary-total"><span>Total</span><span>₹${Checkout.getGrandTotal().toLocaleString()}</span></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:28px"><button class="btn btn-outline" onclick="goToStep(2)">← Back</button><button class="btn btn-primary btn-lg" onclick="placeOrder()" id="place-order-btn">Place Order — ₹${Checkout.getGrandTotal().toLocaleString()}</button></div></div>`;
+    }
+    function renderSuccess(order){
+      document.getElementById('checkout-steps').style.display='none';
+      document.getElementById('page-title').textContent='Order Confirmed';
+      document.getElementById('cart-content').innerHTML=`<div style="text-align:center;padding:48px 20px">
+        <div class="success-check">✓</div>
+        <h2 class="display-md" style="margin-bottom:8px">Thank You</h2>
+        <p style="color:var(--stone);margin-bottom:28px;font-size:1.05rem">Your order has been placed successfully.</p>
+        <div class="glass-card" style="display:inline-block;padding:32px 48px;text-align:left;margin-bottom:32px">
+          <div class="summary-row"><span>Order ID</span><strong style="color:var(--gold)">${order.id}</strong></div>
+          <div class="summary-row"><span>Tracking</span><strong>${order.tracking}</strong></div>
+          <div class="summary-row"><span>Payment</span><strong>${order.payment==='cod'?'Cash on Delivery':order.payment==='upi'?'UPI':'Card'}</strong></div>
+          <div class="summary-total"><span>Total</span><span>₹${order.grandTotal.toLocaleString()}</span></div>
+          <p style="font-size:.75rem;color:var(--mist);margin-top:12px">📧 Confirmation sent · 📦 Estimated delivery: 5-7 days</p>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a href="shop.html" class="btn btn-primary">Continue Shopping</a></div></div>`;
+    }
+    function goToStep(s){step=s;document.querySelectorAll('.step').forEach(el=>{el.classList.remove('active','done');if(parseInt(el.dataset.step)<s)el.classList.add('done');if(parseInt(el.dataset.step)===s)el.classList.add('active')});if(s===1)renderCart();else if(s===2)renderAddress();else if(s===3)renderPayment()}
+    function updateQty(i,d){App.updateCartQty(i,App.cart[i].qty+d);renderCart();App.updateCartCount()}
+    function removeItem(i){App.removeFromCart(i);renderCart()}
+    function applyPromo(){const c=document.getElementById('promo-input').value;if(Checkout.applyPromo(c))renderCart()}
+    function saveAddress(){const f=['name','phone','line','city','state','pin'].map(k=>document.getElementById('addr-'+k));if(f.some(el=>!el.value.trim())){App.showToast('Missing Info','Please fill all required fields.','warning');return}f.forEach(el=>addressData[el.id.replace('addr-','')]=el.value.trim());addressData.country=document.getElementById('addr-country').value;Checkout.address={...addressData};goToStep(3)}
+    function selectPayment(el,method){document.querySelectorAll('.payment-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');Checkout.paymentMethod=method;const det=document.getElementById('payment-details');if(method==='upi')det.innerHTML='<div class="form-group"><label class="form-label">UPI ID</label><input class="form-input" placeholder="yourname@upi"></div>';else if(method==='card')det.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="form-group" style="grid-column:span 2"><label class="form-label">Card Number</label><input class="form-input" placeholder="1234 5678 9012 3456" maxlength="19"></div><div class="form-group"><label class="form-label">Expiry</label><input class="form-input" placeholder="MM/YY"></div><div class="form-group"><label class="form-label">CVV</label><input class="form-input" placeholder="***" type="password" maxlength="3"></div></div>';else det.innerHTML=''}
+    async function placeOrder(){const btn=document.getElementById('place-order-btn');btn.disabled=true;btn.innerHTML='<div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto"></div>';if(Checkout.paymentMethod==='upi')await Checkout.simulateUPI();else if(Checkout.paymentMethod==='card')await Checkout.simulateCard();else await new Promise(r=>setTimeout(r,1500));const order=Checkout.processOrder();renderSuccess(order);App.showToast('Order Placed','Order '+order.id+' confirmed.','success')}
+    document.addEventListener('DOMContentLoaded',()=>renderCart());
+  </script>
+</body>
+</html>
