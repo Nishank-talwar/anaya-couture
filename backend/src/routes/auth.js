@@ -4,6 +4,7 @@ import { prisma } from '../db/prisma.js';
 import { hashPassword, verifyPassword } from '../utils/password.js';
 import { signToken } from '../utils/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
+import { env } from '../config/env.js';
 
 export const authRouter = Router();
 
@@ -17,6 +18,14 @@ const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8)
 });
+
+function setAuthCookie(res, token) {
+  res.cookie('auth', token, {
+    httpOnly: true,
+    sameSite: env.cookieSameSite,
+    secure: env.cookieSecure
+  });
+}
 
 authRouter.post('/register', async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
@@ -32,7 +41,7 @@ authRouter.post('/register', async (req, res) => {
   });
 
   const token = signToken({ id: user.id, email: user.email, role: user.role });
-  res.cookie('auth', token, { httpOnly: true, sameSite: 'lax', secure: false });
+  setAuthCookie(res, token);
   res.json({ id: user.id, name: user.name, email: user.email, role: user.role });
 });
 
@@ -48,7 +57,7 @@ authRouter.post('/login', async (req, res) => {
   if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 
   const token = signToken({ id: user.id, email: user.email, role: user.role });
-  res.cookie('auth', token, { httpOnly: true, sameSite: 'lax', secure: false });
+  setAuthCookie(res, token);
   res.json({ id: user.id, name: user.name, email: user.email, role: user.role });
 });
 

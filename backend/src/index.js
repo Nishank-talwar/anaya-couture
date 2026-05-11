@@ -17,9 +17,11 @@ const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: env.corsOrigin, credentials: true }));
-app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser(env.cookieSecret));
 app.use(morgan('dev'));
+
+app.use('/api/payments/razorpay/webhook', express.raw({ type: '*/*' }));
+app.use(express.json({ limit: '1mb' }));
 
 app.get('/', (req, res) => {
   res.json({ ok: true, service: 'anaya-api' });
