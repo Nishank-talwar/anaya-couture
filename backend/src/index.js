@@ -5,6 +5,10 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { env } from './config/env.js';
 import { healthRouter } from './routes/health.js';
+import { authRouter } from './routes/auth.js';
+import { productsRouter } from './routes/products.js';
+import { cartRouter } from './routes/cart.js';
+import { ordersRouter } from './routes/orders.js';
 
 const app = express();
 
@@ -19,6 +23,10 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/health', healthRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/orders', ordersRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
