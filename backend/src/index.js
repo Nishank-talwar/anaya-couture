@@ -9,6 +9,9 @@ import { authRouter } from './routes/auth.js';
 import { productsRouter } from './routes/products.js';
 import { cartRouter } from './routes/cart.js';
 import { ordersRouter } from './routes/orders.js';
+import { wishlistRouter } from './routes/wishlist.js';
+import { adminRouter } from './routes/admin.js';
+import { paymentsRouter } from './routes/payments.js';
 
 const app = express();
 
@@ -27,6 +30,9 @@ app.use('/api/auth', authRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/wishlist', wishlistRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/payments', paymentsRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
