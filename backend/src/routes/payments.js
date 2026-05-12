@@ -1,16 +1,17 @@
 import express from 'express';
+import { rateLimit } from 'express-rate-limit';
 import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
-import { createRateLimiter } from '../middleware/rateLimit.js';
 import { razorpay } from '../utils/razorpay.js';
 import { verifyRazorpayCheckoutSignature, verifyRazorpayWebhookSignature } from '../utils/razorpayWebhook.js';
 import { env } from '../config/env.js';
 
 export const paymentsRouter = Router();
-const verifyRateLimit = createRateLimiter({ windowMs: 60_000, max: 20 });
-const webhookRateLimit = createRateLimiter({ windowMs: 60_000, max: 120 });
+const orderRateLimit = rateLimit({ windowMs: 60_000, limit: 30, standardHeaders: 'draft-7', legacyHeaders: false });
+const verifyRateLimit = rateLimit({ windowMs: 60_000, limit: 20, standardHeaders: 'draft-7', legacyHeaders: false });
+const webhookRateLimit = rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: 'draft-7', legacyHeaders: false });
 
 function getRazorpayReferenceUpdateData(razorpayOrderId, razorpayPaymentId) {
   return {
@@ -19,7 +20,7 @@ function getRazorpayReferenceUpdateData(razorpayOrderId, razorpayPaymentId) {
   };
 }
 
-paymentsRouter.post('/razorpay/order', requireAuth, async (req, res) => {
+paymentsRouter.post('/razorpay/order', requireAuth, orderRateLimit, async (req, res) => {
   const schema = z.object({ orderId: z.string() });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: 'Invalid input' });
@@ -93,7 +94,8 @@ paymentsRouter.post('/razorpay/webhook', webhookRateLimit, express.raw({ type: '
   if (typeof signature !== 'string') return res.status(400).json({ error: 'Missing signature' });
   if (!env.razorpayWebhookSecret) return res.status(500).json({ error: 'Razorpay webhook is not configured' });
 
-  const payload = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : JSON.stringify(req.body);
+  if (!Buffer.isBuffer(req.body)) return res.status(400).json({ error: 'Invalid payload' });
+  const payload = req.body.toString('utf8');
   if (!verifyRazorpayWebhookSignature(payload, signature)) return res.status(400).json({ error: 'Invalid signature' });
 
   let event;
