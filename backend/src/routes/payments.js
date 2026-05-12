@@ -3,11 +3,21 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { createRateLimiter } from '../middleware/rateLimit.js';
 import { razorpay } from '../utils/razorpay.js';
 import { verifyRazorpayCheckoutSignature, verifyRazorpayWebhookSignature } from '../utils/razorpayWebhook.js';
 import { env } from '../config/env.js';
 
 export const paymentsRouter = Router();
+const verifyRateLimit = createRateLimiter({ windowMs: 60_000, max: 20 });
+const webhookRateLimit = createRateLimiter({ windowMs: 60_000, max: 120 });
+
+function getRazorpayReferenceUpdateData(razorpayOrderId, razorpayPaymentId) {
+  return {
+    ...(razorpayOrderId ? { razorpayOrderId } : {}),
+    ...(razorpayPaymentId ? { razorpayPaymentId } : {})
+  };
+}
 
 paymentsRouter.post('/razorpay/order', requireAuth, async (req, res) => {
   const schema = z.object({ orderId: z.string() });
@@ -36,7 +46,7 @@ paymentsRouter.post('/razorpay/order', requireAuth, async (req, res) => {
   res.json({ orderId: rpOrder.id, keyId: env.razorpayKeyId });
 });
 
-paymentsRouter.post('/razorpay/verify', requireAuth, async (req, res) => {
+paymentsRouter.post('/razorpay/verify', requireAuth, verifyRateLimit, async (req, res) => {
   const schema = z.object({
     orderId: z.string(),
     razorpayOrderId: z.string(),
@@ -78,7 +88,7 @@ paymentsRouter.post('/razorpay/verify', requireAuth, async (req, res) => {
   res.json({ ok: true });
 });
 
-paymentsRouter.post('/razorpay/webhook', express.raw({ type: '*/*' }), async (req, res) => {
+paymentsRouter.post('/razorpay/webhook', webhookRateLimit, express.raw({ type: '*/*' }), async (req, res) => {
   const signature = req.headers['x-razorpay-signature'];
   if (typeof signature !== 'string') return res.status(400).json({ error: 'Missing signature' });
   if (!env.razorpayWebhookSecret) return res.status(500).json({ error: 'Razorpay webhook is not configured' });
@@ -115,8 +125,7 @@ paymentsRouter.post('/razorpay/webhook', express.raw({ type: '*/*' }), async (re
         where: { orderId: payment.orderId },
         data: {
           status: 'CAPTURED',
-          razorpayOrderId: razorpayOrderId || undefined,
-          razorpayPaymentId: razorpayPaymentId || undefined
+          ...getRazorpayReferenceUpdateData(razorpayOrderId, razorpayPaymentId)
         }
       });
       await tx.order.update({
@@ -129,8 +138,7 @@ paymentsRouter.post('/razorpay/webhook', express.raw({ type: '*/*' }), async (re
       where: { orderId: payment.orderId },
       data: {
         status: 'FAILED',
-        razorpayOrderId: razorpayOrderId || undefined,
-        razorpayPaymentId: razorpayPaymentId || undefined
+        ...getRazorpayReferenceUpdateData(razorpayOrderId, razorpayPaymentId)
       }
     });
   } else if (event.event === 'payment.refunded') {
@@ -139,8 +147,7 @@ paymentsRouter.post('/razorpay/webhook', express.raw({ type: '*/*' }), async (re
         where: { orderId: payment.orderId },
         data: {
           status: 'REFUNDED',
-          razorpayOrderId: razorpayOrderId || undefined,
-          razorpayPaymentId: razorpayPaymentId || undefined
+          ...getRazorpayReferenceUpdateData(razorpayOrderId, razorpayPaymentId)
         }
       });
       await tx.order.update({

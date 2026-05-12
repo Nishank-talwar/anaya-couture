@@ -3,7 +3,7 @@ import { env } from '../config/env.js';
 
 function timingSafeHexEqual(expected, received) {
   if (!expected || !received || expected.length !== received.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(expected, 'utf8'), Buffer.from(received, 'utf8'));
+  return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(received, 'hex'));
 }
 
 export function verifyRazorpayWebhookSignature(payload, signature) {
