@@ -20,7 +20,7 @@ function getRazorpayReferenceUpdateData(razorpayOrderId, razorpayPaymentId) {
   };
 }
 
-paymentsRouter.post('/razorpay/order', requireAuth, orderRateLimit, async (req, res) => {
+paymentsRouter.post('/razorpay/order', orderRateLimit, requireAuth, async (req, res) => {
   const schema = z.object({ orderId: z.string() });
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: 'Invalid input' });
@@ -29,7 +29,7 @@ paymentsRouter.post('/razorpay/order', requireAuth, orderRateLimit, async (req, 
     where: { id: parsed.data.orderId, userId: req.user.id }
   });
   if (!order) return res.status(404).json({ error: 'Order not found' });
-  if (order.paymentMethod !== 'RAZORPAY') return res.status(400).json({ error: 'Order payment method is not Razorpay' });
+  if (order.paymentMethod !== 'RAZORPAY') return res.status(400).json({ error: 'Payment method for this order is not Razorpay' });
   if (!env.razorpayKeyId || !env.razorpayKeySecret) return res.status(500).json({ error: 'Razorpay is not configured' });
 
   const rpOrder = await razorpay.orders.create({
@@ -47,7 +47,7 @@ paymentsRouter.post('/razorpay/order', requireAuth, orderRateLimit, async (req, 
   res.json({ orderId: rpOrder.id, keyId: env.razorpayKeyId });
 });
 
-paymentsRouter.post('/razorpay/verify', requireAuth, verifyRateLimit, async (req, res) => {
+paymentsRouter.post('/razorpay/verify', verifyRateLimit, requireAuth, async (req, res) => {
   const schema = z.object({
     orderId: z.string(),
     razorpayOrderId: z.string(),
@@ -107,7 +107,10 @@ paymentsRouter.post('/razorpay/webhook', webhookRateLimit, express.raw({ type: '
   const paymentEntity = event?.payload?.payment?.entity;
   const razorpayOrderId = paymentEntity?.order_id;
   const razorpayPaymentId = paymentEntity?.id;
-  if (!razorpayOrderId && !razorpayPaymentId) return res.json({ ok: true });
+  if (!razorpayOrderId && !razorpayPaymentId) {
+    console.warn('[payments] Razorpay webhook payload missing payment/order identifiers');
+    return res.json({ ok: true });
+  }
 
   const payment = await prisma.payment.findFirst({
     where: {

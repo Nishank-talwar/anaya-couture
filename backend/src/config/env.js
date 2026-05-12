@@ -3,10 +3,10 @@ dotenv.config();
 
 const isProd = process.env.NODE_ENV === 'production';
 
-const requiredInProduction = ['DATABASE_URL', 'JWT_SECRET', 'COOKIE_SECRET', 'RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'];
+const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET', 'COOKIE_SECRET', 'RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'];
 
 function validateRequiredEnv() {
-  const missing = requiredInProduction.filter((key) => !process.env[key]);
+  const missing = requiredEnvVars.filter((key) => !process.env[key]);
   if (missing.length === 0) return;
 
   const message = `Missing required environment variables: ${missing.join(', ')}`;
