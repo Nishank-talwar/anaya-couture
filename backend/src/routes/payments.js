@@ -109,7 +109,7 @@ paymentsRouter.post('/razorpay/webhook', webhookRateLimit, express.raw({ type: '
   const razorpayPaymentId = paymentEntity?.id;
   if (!razorpayOrderId && !razorpayPaymentId) {
     console.warn('[payments] Razorpay webhook payload missing payment/order identifiers');
-    return res.json({ ok: true });
+    return res.status(400).json({ error: 'Invalid payload' });
   }
 
   const payment = await prisma.payment.findFirst({
