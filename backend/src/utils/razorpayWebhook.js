@@ -1,10 +1,26 @@
 import crypto from 'crypto';
 import { env } from '../config/env.js';
 
-export function verifyRazorpaySignature(payload, signature) {
+function timingSafeHexEqual(expected, received) {
+  if (!expected || !received || expected.length !== received.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(expected, 'utf8'), Buffer.from(received, 'utf8'));
+}
+
+export function verifyRazorpayWebhookSignature(payload, signature) {
+  if (!payload || !signature || !env.razorpayWebhookSecret) return false;
   const expected = crypto
     .createHmac('sha256', env.razorpayWebhookSecret)
     .update(payload)
     .digest('hex');
-  return expected === signature;
+  return timingSafeHexEqual(expected, signature);
+}
+
+export function verifyRazorpayCheckoutSignature(orderId, paymentId, signature) {
+  if (!orderId || !paymentId || !signature || !env.razorpayKeySecret) return false;
+  const body = `${orderId}|${paymentId}`;
+  const expected = crypto
+    .createHmac('sha256', env.razorpayKeySecret)
+    .update(body)
+    .digest('hex');
+  return timingSafeHexEqual(expected, signature);
 }
