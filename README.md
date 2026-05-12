@@ -27,6 +27,21 @@ This repository contains the Anaya Couture website.
 4. Integrate Razorpay checkout + payment verification.
 5. Lock admin routes with RBAC.
 
+## Backend local setup
+1. `cd backend`
+2. `cp .env.example .env`
+3. Fill required values:
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - `COOKIE_SECRET`
+   - `RAZORPAY_KEY_ID`
+   - `RAZORPAY_KEY_SECRET`
+   - `RAZORPAY_WEBHOOK_SECRET`
+   - `CORS_ORIGIN`
+4. `npm install`
+5. `npm run prisma:generate`
+6. `npm run dev`
+
 ---
 
 > Maintained by Nishank-talwar
