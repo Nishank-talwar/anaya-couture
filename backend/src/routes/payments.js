@@ -108,16 +108,13 @@ paymentsRouter.post('/razorpay/webhook', webhookRateLimit, express.raw({ type: '
   const razorpayOrderId = paymentEntity?.order_id;
   const razorpayPaymentId = paymentEntity?.id;
   if (!razorpayOrderId && !razorpayPaymentId) {
-    console.warn('[payments] Razorpay webhook payload missing payment/order identifiers');
+    console.warn('[payments] Razorpay webhook received with missing or invalid payment identifiers - possible malformed request');
     return res.status(400).json({ error: 'Invalid payload' });
   }
 
   const payment = await prisma.payment.findFirst({
     where: {
-      OR: [
-        razorpayOrderId ? { razorpayOrderId } : undefined,
-        razorpayPaymentId ? { razorpayPaymentId } : undefined
-      ].filter(Boolean)
+      OR: [razorpayOrderId && { razorpayOrderId }, razorpayPaymentId && { razorpayPaymentId }].filter(Boolean)
     },
     select: { orderId: true }
   });

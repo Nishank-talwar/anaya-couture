@@ -2,7 +2,9 @@ import crypto from 'crypto';
 import { env } from '../config/env.js';
 
 function timingSafeHexEqual(expected, received) {
+  const hexRegex = /^[0-9a-f]+$/i;
   if (!expected || !received || expected.length !== received.length) return false;
+  if (!hexRegex.test(expected) || !hexRegex.test(received)) return false;
   return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(received, 'hex'));
 }
 
