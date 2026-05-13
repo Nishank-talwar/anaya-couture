@@ -16,3 +16,16 @@ export const env = {
   cookieSecure: isProd,
   cookieSameSite: isProd ? 'none' : 'lax'
 };
+
+const requiredVars = ['DATABASE_URL', 'JWT_SECRET', 'COOKIE_SECRET'];
+const missingRequired = requiredVars.filter((name) => !process.env[name]);
+
+if (missingRequired.length) {
+  throw new Error(`Missing required environment variables: ${missingRequired.join(', ')}`);
+}
+
+const razorpayVars = ['RAZORPAY_KEY_ID', 'RAZORPAY_KEY_SECRET', 'RAZORPAY_WEBHOOK_SECRET'];
+const missingRazorpay = razorpayVars.filter((name) => !process.env[name]);
+if (missingRazorpay.length) {
+  console.warn(`⚠ Razorpay variables missing (${missingRazorpay.join(', ')}). COD checkout will continue to work.`);
+}

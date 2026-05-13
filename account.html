@@ -188,7 +188,11 @@
     <div class="glass-card" style="max-width: 450px; width: 100%; text-align: center;">
       <h2 class="display-md" style="margin-bottom: 8px">Sign In</h2>
       <p class="text-muted" style="margin-bottom: 32px">Access your private collection and orders.</p>
-      <form onsubmit="handleLogin(event)">
+      <form onsubmit="handleAuthSubmit(event)">
+        <div class="form-group" style="text-align: left;" id="register-name-wrap" hidden>
+          <label class="form-label">Full Name</label>
+          <input type="text" id="register-name" class="form-input" placeholder="Your Name">
+        </div>
         <div class="form-group" style="text-align: left;">
           <label class="form-label">Email Address</label>
           <input type="email" id="login-email" class="form-input" placeholder="email@example.com" required>
@@ -197,9 +201,12 @@
           <label class="form-label">Password</label>
           <input type="password" id="login-pass" class="form-input" placeholder="••••••••" required>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px">Enter the Atelier</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px" id="auth-submit-btn">Enter the Atelier</button>
       </form>
-      <p style="margin-top: 24px; font-size: 0.85rem; color: var(--mist)">New to Anaya? <a href="#" class="text-gold" style="font-weight: 600">Request Membership</a></p>
+      <p style="margin-top: 24px; font-size: 0.85rem; color: var(--mist)">
+        <span id="auth-toggle-label">New to Anaya?</span>
+        <a href="#" class="text-gold" style="font-weight: 600" onclick="toggleAuthMode(event)" id="auth-toggle-link">Create Membership</a>
+      </p>
     </div>
   </div>
 
@@ -212,8 +219,12 @@
   </footer>
 
   <script src="js/products.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/app.js"></script>
   <script>
+    let isRegisterMode = false;
+
     function initAccount() {
       if (!App.user) {
         document.getElementById('login-overlay').style.display = 'flex';
@@ -251,14 +262,14 @@
           <div class="order-header">
             <div>
               <span class="label-luxury" style="color: var(--mist)">Order #${o.id}</span>
-              <div style="font-size: 0.9rem; margin-top: 4px">${new Date(o.date).toLocaleDateString()} · ₹${o.total.toLocaleString()}</div>
+              <div style="font-size: 0.9rem; margin-top: 4px">${new Date(o.createdAt || o.date).toLocaleDateString()} · ₹${Number(o.total).toLocaleString()}</div>
             </div>
-            <span class="order-status">${o.status}</span>
+            <span class="order-status">${String(o.status).toLowerCase()}</span>
           </div>
           <div style="display:flex; gap:12px; overflow-x:auto; padding: 10px 0;">
-            ${o.items.map(i => `<img src="${i.image}" style="width:60px; height:80px; object-fit:cover; border:1px solid var(--gold-border)">`).join('')}
+            ${o.items.map(i => `<img src="${i.image || i.variant?.product?.images?.[0]?.url || ''}" style="width:60px; height:80px; object-fit:cover; border:1px solid var(--gold-border)">`).join('')}
           </div>
-          <div style="font-size: 0.75rem; color: var(--mist); margin-top: 8px">Tracking: ${o.tracking}</div>
+          <div style="font-size: 0.75rem; color: var(--mist); margin-top: 8px">Payment: ${o.paymentMethod || o.payment?.method || 'N/A'}</div>
         </div>
       `).join('');
 
@@ -278,24 +289,53 @@
         grid.innerHTML = '<div class="empty-state"><h3>Your wishlist is empty</h3></div>';
         return;
       }
-      const products = PRODUCTS.filter(p => App.wishlist.includes(p.id));
+      const catalog = App.catalog.length ? App.catalog : PRODUCTS;
+      const products = catalog.filter(p => App.wishlist.includes(p.id));
       grid.innerHTML = products.map(p => App.renderProductCard(p)).join('');
     }
 
-    function handleLogin(e) {
+    function toggleAuthMode(e) {
       e.preventDefault();
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('register-name-wrap').hidden = !isRegisterMode;
+      document.getElementById('auth-submit-btn').textContent = isRegisterMode ? 'Create Membership' : 'Enter the Atelier';
+      document.getElementById('auth-toggle-label').textContent = isRegisterMode ? 'Already have an account?' : 'New to Anaya?';
+      document.getElementById('auth-toggle-link').textContent = isRegisterMode ? 'Sign In' : 'Create Membership';
+      document.getElementById('register-name').required = isRegisterMode;
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('auth-submit-btn');
+      const old = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto"></div>';
+
       const email = document.getElementById('login-email').value;
-      const name = email.split('@')[0];
-      App.login(name.charAt(0).toUpperCase() + name.slice(1), email, '');
+      const password = document.getElementById('login-pass').value;
+
+      try {
+        if (isRegisterMode) {
+          const name = document.getElementById('register-name').value.trim();
+          await App.register(name, email, password);
+        } else {
+          await App.login(email, password);
+        }
+        location.reload();
+      } catch (err) {
+        // toast shown by API layer
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = old;
+      }
+    }
+
+    async function handleLogout() {
+      await App.logout();
       location.reload();
     }
 
-    function handleLogout() {
-      App.logout();
-      location.reload();
-    }
-
-    document.addEventListener('DOMContentLoaded', initAccount);
+    document.addEventListener('app:ready', initAccount);
   </script>
 </body>
 </html>

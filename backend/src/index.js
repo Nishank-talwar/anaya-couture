@@ -14,13 +14,26 @@ import { adminRouter } from './routes/admin.js';
 import { paymentsRouter } from './routes/payments.js';
 
 const app = express();
+const safeMethods = new Set(['GET', 'HEAD', 'OPTIONS']);
 
 app.use(helmet());
 app.use(cors({ origin: env.corsOrigin, credentials: true }));
 app.use(cookieParser(env.cookieSecret));
 app.use(morgan('dev'));
+app.use('/api', (req, res, next) => {
+  if (safeMethods.has(req.method)) return next();
+  if (req.path === '/payments/razorpay/webhook') return next();
 
-app.use('/api/payments/razorpay/webhook', express.raw({ type: '*/*' }));
+  const origin = req.get('origin');
+  const referer = req.get('referer');
+  const allowed = env.corsOrigin;
+  const originAllowed = origin && origin === allowed;
+  const refererAllowed = referer && referer.startsWith(allowed);
+
+  if (originAllowed || refererAllowed) return next();
+  return res.status(403).json({ error: 'CSRF validation failed' });
+});
+
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/', (req, res) => {

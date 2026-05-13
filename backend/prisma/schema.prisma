@@ -64,7 +64,8 @@ model Address {
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user   User    @relation(fields: [userId], references: [id])
+  orders Order[]
 }
 
 model Product {
@@ -82,8 +83,9 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  variants    Variant[]
-  images      ProductImage[]
+  variants      Variant[]
+  images        ProductImage[]
+  wishlistItems WishlistItem[]
 }
 
 model ProductImage {
@@ -105,7 +107,9 @@ model Variant {
   stock     Int      @default(0)
   sku       String   @unique
 
-  product Product @relation(fields: [productId], references: [id])
+  product    Product    @relation(fields: [productId], references: [id])
+  cartItems  CartItem[]
+  orderItems OrderItem[]
 }
 
 model CartItem {
