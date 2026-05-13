@@ -62,6 +62,8 @@
   <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 Anaya Couture. All rights reserved.</p><div class="footer-payments"><span>💳 Visa</span><span>📱 UPI</span><span>💵 COD</span></div></div></div></footer>
 
   <script src="js/products.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/app.js"></script>
   <script src="js/checkout.js"></script>
   <script src="js/ai.js"></script>
@@ -112,9 +114,8 @@
     function renderPayment(){
       document.getElementById('cart-content').innerHTML=`<div style="max-width:600px">
         <h2 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:28px">Payment Method</h2>
-        <div class="payment-option selected" onclick="selectPayment(this,'cod')"><div class="payment-radio"></div><div><strong>💵 Cash on Delivery</strong><p style="font-size:.8rem;color:var(--mist);margin-top:2px">Pay when you receive your order</p></div></div>
-        <div class="payment-option" onclick="selectPayment(this,'upi')"><div class="payment-radio"></div><div><strong>📱 UPI Payment</strong><p style="font-size:.8rem;color:var(--mist);margin-top:2px">Google Pay, PhonePe, Paytm</p></div></div>
-        <div class="payment-option" onclick="selectPayment(this,'card')"><div class="payment-radio"></div><div><strong>💳 Credit / Debit Card</strong><p style="font-size:.8rem;color:var(--mist);margin-top:2px">Visa, Mastercard, Rupay</p></div></div>
+        <div class="payment-option selected" onclick="selectPayment(this,'COD')"><div class="payment-radio"></div><div><strong>💵 Cash on Delivery</strong><p style="font-size:.8rem;color:var(--mist);margin-top:2px">Pay when you receive your order</p></div></div>
+        <div class="payment-option" onclick="selectPayment(this,'RAZORPAY')"><div class="payment-radio"></div><div><strong>💳 Razorpay</strong><p style="font-size:.8rem;color:var(--mist);margin-top:2px">Pay securely via cards, UPI, and wallets</p></div></div>
         <div id="payment-details" style="margin-top:16px"></div>
         <div class="order-summary" style="margin-top:28px;position:static">
           <h3 style="font-family:var(--font-display);font-size:1rem;margin-bottom:16px">Order Summary</h3>
@@ -135,20 +136,21 @@
         <div class="glass-card" style="display:inline-block;padding:32px 48px;text-align:left;margin-bottom:32px">
           <div class="summary-row"><span>Order ID</span><strong style="color:var(--gold)">${order.id}</strong></div>
           <div class="summary-row"><span>Tracking</span><strong>${order.tracking}</strong></div>
-          <div class="summary-row"><span>Payment</span><strong>${order.payment==='cod'?'Cash on Delivery':order.payment==='upi'?'UPI':'Card'}</strong></div>
-          <div class="summary-total"><span>Total</span><span>₹${order.grandTotal.toLocaleString()}</span></div>
+          <div class="summary-row"><span>Payment</span><strong>${order.paymentMethod==='COD'?'Cash on Delivery':'Razorpay'}</strong></div>
+          <div class="summary-total"><span>Total</span><span>₹${Number(order.total || Checkout.getGrandTotal()).toLocaleString()}</span></div>
           <p style="font-size:.75rem;color:var(--mist);margin-top:12px">📧 Confirmation sent · 📦 Estimated delivery: 5-7 days</p>
         </div>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><a href="shop.html" class="btn btn-primary">Continue Shopping</a></div></div>`;
     }
     function goToStep(s){step=s;document.querySelectorAll('.step').forEach(el=>{el.classList.remove('active','done');if(parseInt(el.dataset.step)<s)el.classList.add('done');if(parseInt(el.dataset.step)===s)el.classList.add('active')});if(s===1)renderCart();else if(s===2)renderAddress();else if(s===3)renderPayment()}
-    function updateQty(i,d){App.updateCartQty(i,App.cart[i].qty+d);renderCart();App.updateCartCount()}
-    function removeItem(i){App.removeFromCart(i);renderCart()}
+    function showCartLoading(message='Updating your bag...'){document.getElementById('cart-content').innerHTML=`<div class="empty-state"><div class="spinner" style="margin-bottom:12px"></div><p>${message}</p></div>`}
+    async function updateQty(i,d){showCartLoading();await App.updateCartQty(i,App.cart[i].qty+d);renderCart();App.updateCartCount()}
+    async function removeItem(i){showCartLoading('Removing item...');await App.removeFromCart(i);renderCart()}
     function applyPromo(){const c=document.getElementById('promo-input').value;if(Checkout.applyPromo(c))renderCart()}
     function saveAddress(){const f=['name','phone','line','city','state','pin'].map(k=>document.getElementById('addr-'+k));if(f.some(el=>!el.value.trim())){App.showToast('Missing Info','Please fill all required fields.','warning');return}f.forEach(el=>addressData[el.id.replace('addr-','')]=el.value.trim());addressData.country=document.getElementById('addr-country').value;Checkout.address={...addressData};goToStep(3)}
-    function selectPayment(el,method){document.querySelectorAll('.payment-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');Checkout.paymentMethod=method;const det=document.getElementById('payment-details');if(method==='upi')det.innerHTML='<div class="form-group"><label class="form-label">UPI ID</label><input class="form-input" placeholder="yourname@upi"></div>';else if(method==='card')det.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="form-group" style="grid-column:span 2"><label class="form-label">Card Number</label><input class="form-input" placeholder="1234 5678 9012 3456" maxlength="19"></div><div class="form-group"><label class="form-label">Expiry</label><input class="form-input" placeholder="MM/YY"></div><div class="form-group"><label class="form-label">CVV</label><input class="form-input" placeholder="***" type="password" maxlength="3"></div></div>';else det.innerHTML=''}
-    async function placeOrder(){const btn=document.getElementById('place-order-btn');btn.disabled=true;btn.innerHTML='<div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto"></div>';if(Checkout.paymentMethod==='upi')await Checkout.simulateUPI();else if(Checkout.paymentMethod==='card')await Checkout.simulateCard();else await new Promise(r=>setTimeout(r,1500));const order=Checkout.processOrder();renderSuccess(order);App.showToast('Order Placed','Order '+order.id+' confirmed.','success')}
-    document.addEventListener('DOMContentLoaded',()=>renderCart());
+    function selectPayment(el,method){document.querySelectorAll('.payment-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');Checkout.paymentMethod=method;const det=document.getElementById('payment-details');det.innerHTML=method==='RAZORPAY'?'<p style="font-size:.8rem;color:var(--mist)">You will be redirected to secure Razorpay checkout.</p>':''}
+    async function placeOrder(){if(!App.user){App.showToast('Sign In Required','Please sign in from account page before checkout.','warning');window.location.href='account.html';return;}const btn=document.getElementById('place-order-btn');const old=btn.innerHTML;btn.disabled=true;btn.innerHTML='<div class="spinner" style="width:20px;height:20px;border-width:2px;margin:0 auto"></div>';try{const order=Checkout.paymentMethod==='RAZORPAY'?await Checkout.placeRazorpayOrder():await Checkout.placeCodOrder();App.cart=[];App.updateCartCount();renderSuccess(order);App.showToast('Order Placed','Order '+order.id+' confirmed.','success');}catch(err){if(err?.message!=='Payment cancelled'){App.showToast('Checkout Failed',err?.message||'Please try again.','error');}}finally{btn.disabled=false;btn.innerHTML=old;}}
+    document.addEventListener('app:ready',()=>renderCart());
   </script>
 </body>
 </html>

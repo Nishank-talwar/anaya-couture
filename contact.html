@@ -163,9 +163,11 @@
   </footer>
 
   <script src="js/products.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/app.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('app:ready', () => {
       // Inject FAQs from products.js
       const faqList = document.getElementById('faq-list');
       if (faqList && window.FAQS) {
