@@ -130,7 +130,7 @@ paymentsRouter.post('/razorpay/verify', paymentLimiter, requireAuth, async (req,
   res.json({ ok: true });
 });
 
-paymentsRouter.post('/razorpay/webhook', express.raw({ type: '*/*' }), async (req, res) => {
+paymentsRouter.post('/razorpay/webhook', paymentLimiter, express.raw({ type: '*/*' }), async (req, res) => {
   if (!ensureRazorpayConfigured()) return res.status(503).json({ error: 'Razorpay is not configured' });
 
   const signature = req.headers['x-razorpay-signature'];
